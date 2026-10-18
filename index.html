@@ -1,38 +1,25 @@
----
-layout: default
-title: Home
----
-
-<div class="posts">
-  {% for post in paginator.posts %}
-  <div class="post">
-    <h1 class="post-title">
-      <a href="{{ post.url }}">
-        {{ post.title }}
-      </a>
-    </h1>
-
-    <span class="post-date">{{ post.date | date_to_string }}</span>
-
-    {{ post.content }}
-  </div>
-  {% endfor %}
-</div>
-
-<div class="pagination">
-  {% if paginator.next_page %}
-    <a class="pagination-item older" href="/page{{paginator.next_page}}">Older</a>
-  {% else %}
-    <span class="pagination-item older">Older</span>
-  {% endif %}
-  {% if paginator.previous_page %}
-    {% if paginator.page == 2 %}
-      <a class="pagination-item newer" href="/">Newer</a>
-    {% else %}
-      <a class="pagination-item newer" href="/page{{paginator.previous_page}}">Newer</a>
-    {% endif %}
-  {% else %}
-    <span class="pagination-item newer">Newer</span>
-  {% endif %}
-</div>
-
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Marcin Franckiewicz — pomysły w ruchu</title>
+<meta name="description" content="Marcin Franckiewicz. Twórca FORGE i narzędzi Beacon. Pomysły, kod i narzędzia, które ułatwiają codzienną pracę.">
+<meta name="theme-color" content="#111310"><meta property="og:title" content="Marcin Franckiewicz — pomysły w ruchu"><meta property="og:description" content="Poznaj moją kuźnię projektów: FORGE i narzędzia Beacon."><link rel="icon" href="assets/mark.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css"><script src="app.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Przejdź do treści</a>
+<header class="wrap"><a class="logo" href="#" aria-label="Marcin Franckiewicz, początek">mf<span>✳</span></a><nav aria-label="Główna nawigacja"><a href="#o-mnie">O mnie</a><a href="#projekty">Projekty</a><a class="nav-contact" href="https://forge.franckiewicz.eu/#kontakt">Porozmawiajmy ↗</a></nav><button id="theme" class="icon-button" aria-label="Włącz jasny motyw">◐</button></header>
+<main id="main">
+<section class="hero wrap">
+<div class="hero-copy"><p class="eyebrow"><span class="dot"></span> MARCIN FRANCKIEWICZ / @FRANEKFRK</p><h1>Pomysł?<br>Wprawmy go<br><span>w ruch<span class="period">.</span></span></h1><p class="intro">Łączę pomysły, kod i codzienną praktykę.<br>Tworzę narzędzia, które zdejmują z głowy<br class="desktop"> powtarzalną pracę.</p><div class="actions"><a class="button" href="#projekty">Zobacz, co tworzę <span>↘</span></a><a class="text-link" href="https://github.com/franekfrk">GitHub ↗</a></div></div>
+<div class="visual" id="visual"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><span class="orbit-label label-one">POMYSŁ</span><span class="orbit-label label-two">KOD</span><span class="orbit-label label-three">DZIAŁANIE</span><div class="portrait" id="portrait"><img src="assets/marcin.png" alt="Pixelartowy portret Marcina Franckiewicza w czapce i niebieskich okularach" width="1254" height="1254"><span class="portrait-caption">CZŁOWIEK ZA KODEM ↗</span></div><button class="spark" id="spark" aria-label="Uruchom rozbłysk">✳</button><span class="visual-note">mniej klikania. więcej tworzenia.</span></div>
+<div class="hero-footer"><span>NIEUSTANNIE COŚ BUDUJĘ</span><a href="#projekty">Przewiń i poznaj moje projekty ↓</a><span id="clock">CZAS NA DOBRY POMYSŁ</span></div>
+</section>
+<div class="ticker" aria-hidden="true"><div>POMYSŁ → EKSPERYMENT → KOD → DZIAŁAJĄCE NARZĘDZIE → <span>KOLEJNY POMYSŁ ✳</span></div></div>
+<section class="wrap projects" id="projekty"><div class="section-heading"><p class="eyebrow">01 / MOJE PROJEKTY</p><h2>Z pomysłu.<br>Do przeglądarki.</h2><p>Własne narzędzia. Realne zastosowania.<br>Wszystko zaczyna się od: „da się to uprościć”.</p></div>
+<a class="forge-card project" href="https://forge.franckiewicz.eu/"><div><p class="eyebrow">MÓJ WARSZTAT</p><h3>FORGE<span>↗</span></h3><p>Kuźnia pomysłów i technologii. Tutaj rozwijam narzędzia Beacon do pracy z Amazon — od zamówień i reklamy po analizę danych.</p><span class="pill">Poznaj całą kuźnię ↗</span></div><div class="forge-symbol" aria-hidden="true">✳<span>OD ISKRY<br>DO NARZĘDZIA.</span></div></a>
+<div class="project-grid"><a class="project small-project" href="https://forge.franckiewicz.eu/vb/"><span class="project-number">01 / ZAMÓWIENIA</span><span class="mini-art" aria-hidden="true">▥<i>↗</i></span><h3>VendorBeacon <span>↗</span></h3><p>Narzędzie do obsługi zamówień Amazon. Mniej przepisywania, więcej porządku w codziennej pracy.</p><span class="project-tag">AMAZON · VENDOR CENTRAL</span></a><a class="project small-project" href="https://forge.franckiewicz.eu/#projekty"><span class="project-number">02 / REKLAMA</span><span class="mini-art bars" aria-hidden="true">▂ ▄ ▆ █</span><h3>BidBeacon <span>↗</span></h3><p>Łatwiejsza ocena opłacalności reklamy. Dane, które pomagają spojrzeć na wyniki kampanii.</p><span class="project-tag">AMAZON · ANALIZA REKLAM</span></a><a class="project small-project" href="https://forge.franckiewicz.eu/costbeacon/"><span class="project-number">03 / AUTOMATYZACJA</span><span class="mini-art" aria-hidden="true">€<i>↓</i></span><h3>CostBeacon <span>↗</span></h3><p>Ceny zakupu z Vendor Central zebrane w Excelu. Od otwartej strony do danych gotowych do pracy.</p><span class="project-tag">VENDOR CENTRAL · EKSPORT XLSX</span></a></div></section>
+<section class="about wrap" id="o-mnie"><div><p class="eyebrow">02 / CZŁOWIEK ZA KODEM</p><h2>Ciekawość.<br>Potem <em>Enter.</em></h2><p>Nazywam się Marcin Franckiewicz. Tworzę programy, których sam potrzebuję — i rozwijam je w FORGE. Interesuje mnie moment, w którym uciążliwa czynność zamienia się w proste narzędzie.</p><a class="text-link" href="https://github.com/franekfrk">Zajrzyj do mojego GitHuba ↗</a></div><div class="terminal"><div class="terminal-bar"><span>● ● ●</span><span>marcin@forge: ~</span></div><div id="terminal-output" role="log" aria-live="polite"><p><b>➜</b> whoami</p><p>Marcin Franckiewicz<br>Twórca FORGE i narzędzi Beacon.</p><p class="muted">Wpisz help i naciśnij Enter.</p></div><form id="terminal-form"><label for="command">➜</label><input id="command" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Polecenie terminala" placeholder="help"><button aria-label="Wykonaj polecenie">↵</button></form></div></section>
+<section class="contact wrap"><p class="eyebrow">03 / NASTĘPNY KROK</p><h2>Masz pomysł?<br><a href="https://forge.franckiewicz.eu/#kontakt">Daj mu iskrę. <span>↗</span></a></h2><p>Porozmawiajmy o narzędziach, automatyzacji<br>albo o czymś, co warto uprościć.</p></section>
+</main><footer class="wrap"><span>© <span id="year">2026</span> Marcin Franckiewicz</span><span>Z CIEKAWOŚCI DO TWORZENIA ✳</span><a href="#">Do góry ↑</a></footer>
+</body></html>

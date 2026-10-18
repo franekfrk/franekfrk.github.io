@@ -100,7 +100,7 @@ function boot() {
  const el=entry();
  line(el,'MF / PERSONAL SYSTEMS','boot-sub');
  line(el,'FRANCKIEWICZ / OS','boot-mark');
- line(el,'TERMINAL OS 1.0 · CRT SERIES 86 / BUILD 2026','boot-sub');
+ line(el,'TERMINAL OS 1.1 · CRT SERIES 86 / BUILD 2026','boot-sub');
  line(el,'[ OK ] Phosphor display warmed up');
  line(el,'[ OK ] Creative engine initialized');
  line(el,'[ OK ] FORGE mounted · 10 Beacon tools');
@@ -111,7 +111,10 @@ function boot() {
  line(el,'Tworzę narzędzia, których sam potrzebuję.\nPomysły, automatyzacja, Amazon, homelab i nexo.');
  const row=node('div',undefined,'links');
  for(const c of ['help','about','projects','contact'])button(row,'[ '+c+' ]',c);
- el.append(row); line(el,'Wpisz polecenie lub kliknij jedną z opcji.','line muted');
+ el.append(row);
+ line(el,'NOWE MODUŁY / OS 1.1','category');
+ const extrasRow=node('div',undefined,'links');for(const c of ['neofetch','tree','screensaver','exit'])button(extrasRow,'[ '+c+' ]',c);el.append(extrasRow);
+ line(el,'Wpisz polecenie lub kliknij jedną z opcji.','line muted');
  const screen=document.querySelector('.screen'); screen.classList.remove('power-on');
  void screen.offsetWidth; screen.classList.add('power-on');
  animateEntry(el,true); scroll();

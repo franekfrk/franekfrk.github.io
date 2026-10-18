@@ -18,9 +18,33 @@ const projects = [
  ['nexosql','Skrypty SQL do nexo','Własne skrypty do pracy z bazami nexo.','Tworzę również różne skrypty SQL do nexo. Zakres i zastosowanie dobieram do konkretnej potrzeby — porozmawiajmy o pracy z Twoimi danymi.',FORGE+'#kontakt','nexo']
 ];
 const output=document.querySelector('#output'), viewport=document.querySelector('#viewport'), input=document.querySelector('#command'), form=document.querySelector('#form');
-const reduced=matchMedia('(prefers-reduced-motion: reduce)');
 const history=[];let historyIndex=0,draft='',bootTimer,matrixTimer;
 const aliases={whoami:'about',ls:'projects',narzedzia:'projects',tools:'projects',kontakt:'contact',cls:'clear','homelab-tools':'homelabtools',amazonSigmarizzextractor:'sigmarizz',sql:'nexosql'};
+// Local synthesizer: no audio files, network requests or persistent microphone access.
+let audioContext=null, lastClickSound=0, lastPrintSound=0;
+function tone(frequency=650,duration=.035,volume=.018,delay=0,type='square') {
+ if(!audioContext || audioContext.state!=='running')return;
+ try {
+  const at=audioContext.currentTime+delay, oscillator=audioContext.createOscillator(), gain=audioContext.createGain();
+  oscillator.type=type; oscillator.frequency.setValueAtTime(frequency,at);
+  gain.gain.setValueAtTime(0,at);gain.gain.linearRampToValueAtTime(volume,at+.003);
+  gain.gain.exponentialRampToValueAtTime(.0001,at+duration);
+  oscillator.connect(gain);gain.connect(audioContext.destination);
+  oscillator.onended=()=>{oscillator.disconnect();gain.disconnect();};
+  oscillator.start(at);oscillator.stop(at+duration+.01);
+ }catch{}
+}
+function bootSound(){tone(330,.1,.022,0,'sine');tone(495,.1,.018,.12,'sine');tone(660,.16,.018,.24,'sine');}
+function unlockAudio(){
+ if(audioContext){if(audioContext.state==='suspended')audioContext.resume().catch(()=>{});return;}
+ const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return;
+ try{audioContext=new Audio();audioContext.resume().then(bootSound).catch(()=>{});}catch{}
+}
+function keySound(){const now=performance.now();if(now-lastClickSound<35)return;lastClickSound=now;tone(440+Math.random()*190,.023,.012);}
+function printSound(now){if(now-lastPrintSound<90)return;lastPrintSound=now;tone(960,.018,.005);}
+document.addEventListener('pointerdown',unlockAudio,{capture:true});
+document.addEventListener('keydown',e=>{unlockAudio();if(e.target===input&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&(e.key.length===1||e.key==='Backspace'))keySound();},{capture:true});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&audioContext?.state==='running')audioContext.suspend().catch(()=>{});});
 function node(tag,text,cls){const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(cls)el.className=cls;return el;}
 function line(parent,text,cls='line'){parent.append(node('div',text,cls));}
 function link(parent,text,url){const a=node('a',text);a.href=url;a.target='_blank';a.rel='noopener noreferrer';parent.append(a);}
@@ -43,7 +67,6 @@ function finishTyping() {
 }
 function animateEntry(element, booting = false) {
  finishTyping();
- if (document.body.classList.contains('fx-off')) return;
  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
  const parts = []; let textNode, total = 0;
  while ((textNode = walker.nextNode())) {
@@ -60,6 +83,7 @@ function animateEntry(element, booting = false) {
  function frame(now) {
   if (activeTyping !== state) return;
   const count = Math.min(total, Math.floor((now-start)/duration*total));
+  printSound(now);
   let offset = 0;
   for (const part of parts) {
    const length = Math.max(0, Math.min(part.text.length, count-offset));
@@ -72,7 +96,7 @@ function animateEntry(element, booting = false) {
  state.frame = requestAnimationFrame(frame);
 }
 function boot() {
- finishTyping(); clearTimeout(bootTimer); stopMatrix(); output.replaceChildren();
+ bootSound(); finishTyping(); clearTimeout(bootTimer); stopMatrix(); output.replaceChildren();
  const el=entry();
  line(el,'MF / PERSONAL SYSTEMS','boot-sub');
  line(el,'FRANCKIEWICZ / OS','boot-mark');
@@ -93,10 +117,10 @@ function boot() {
  animateEntry(el,true); scroll();
 }
 function theme(value){if(!['green','amber'].includes(value))return false;document.body.classList.toggle('amber',value==='amber');document.querySelector('#color').setAttribute('aria-label',value==='amber'?'Zmień kolor na zielony':'Zmień kolor na bursztynowy');try{localStorage.setItem('crt-theme',value);}catch{}return true;}
-function setFX(off){document.body.classList.toggle('fx-off',off);document.body.classList.toggle('fx-enabled',!off);if(off)finishTyping();const b=document.querySelector('#motion');b.textContent='CRT FX: '+(off?'OFF':'ON');b.setAttribute('aria-pressed',String(off));try{localStorage.setItem('crt-fx',off?'off':'on');}catch{}}
+
 function stopMatrix(){clearInterval(matrixTimer);matrixTimer=null;document.querySelector('#matrix').hidden=true;document.querySelector('#exit-matrix').hidden=true;}
-function matrix(parent){if(document.body.classList.contains('fx-off')){line(parent,'Animacje są wyłączone. Włącz CRT FX, aby uruchomić MATRIX.');return;}stopMatrix();const canvas=document.querySelector('#matrix'),ctx=canvas.getContext('2d');if(!ctx){line(parent,'Animacja nie jest dostępna w tej przeglądarce.');return;}const rect=canvas.parentElement.getBoundingClientRect();canvas.width=Math.round(rect.width);canvas.height=Math.round(rect.height);const drops=Array.from({length:Math.ceil(canvas.width/18)},()=>-Math.random()*30);const color=getComputedStyle(document.body).getPropertyValue('--phosphor').trim();canvas.hidden=false;document.querySelector('#exit-matrix').hidden=false;matrixTimer=setInterval(()=>{ctx.fillStyle='#06100824';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle=color;ctx.font='15px monospace';drops.forEach((y,i)=>{ctx.fillText(String.fromCharCode(0x30A0+Math.floor(Math.random()*90)),i*18,y*18);if(y*18>canvas.height&&Math.random()>.97)drops[i]=0;else drops[i]++;});},65);line(parent,'Animacja MATRIX. Naciśnij Esc, aby wrócić.');}
-function run(raw){const command=raw.trim();if(!command)return;finishTyping();clearTimeout(bootTimer);history.push(command);historyIndex=history.length;input.value='';draft='';const parts=command.toLowerCase().split(/\s+/);const cmd=aliases[parts[0]]||parts[0],arg=parts.slice(1).join(' ');if(cmd==='clear'){output.replaceChildren();return;}if(cmd==='reboot'){boot();return;}const el=entry(command);const project=findProject(cmd);
+function matrix(parent){stopMatrix();const canvas=document.querySelector('#matrix'),ctx=canvas.getContext('2d');if(!ctx){line(parent,'Animacja nie jest dostępna w tej przeglądarce.');return;}const rect=canvas.parentElement.getBoundingClientRect();canvas.width=Math.round(rect.width);canvas.height=Math.round(rect.height);const drops=Array.from({length:Math.ceil(canvas.width/18)},()=>-Math.random()*30);const color=getComputedStyle(document.body).getPropertyValue('--phosphor').trim();canvas.hidden=false;document.querySelector('#exit-matrix').hidden=false;matrixTimer=setInterval(()=>{ctx.fillStyle='#06100824';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle=color;ctx.font='15px monospace';drops.forEach((y,i)=>{ctx.fillText(String.fromCharCode(0x30A0+Math.floor(Math.random()*90)),i*18,y*18);if(y*18>canvas.height&&Math.random()>.97)drops[i]=0;else drops[i]++;});},65);line(parent,'Animacja MATRIX. Naciśnij Esc, aby wrócić.');}
+function run(raw){const command=raw.trim();if(!command)return;tone(740,.055,.018);finishTyping();clearTimeout(bootTimer);history.push(command);historyIndex=history.length;input.value='';draft='';const parts=command.toLowerCase().split(/\s+/);const cmd=aliases[parts[0]]||parts[0],arg=parts.slice(1).join(' ');if(cmd==='clear'){output.replaceChildren();return;}if(cmd==='reboot'){boot();return;}const el=entry(command);const project=findProject(cmd);
  if(project)detail(el,project);
  else if(cmd==='help'){line(el,'DOSTĘPNE POLECENIA','detail-title');for(const [c,d] of [['about','Kim jestem i co tworzę'],['projects','Wszystkie 15 projektów i narzędzi'],['beacons','10 narzędzi Beacon z FORGE'],['nexo','Migrator i skrypty SQL do nexo'],['open nazwa','Otwórz stronę projektu'],['forge','Moja kuźnia pomysłów i technologii'],['github','Profil GitHub'],['contact','Kontakt i rozmowa o projekcie'],['theme green','Zielony luminofor'],['theme amber','Bursztynowy luminofor'],['clear','Wyczyść ekran'],['reboot','Uruchom terminal ponownie'],['date','Aktualny czas w Polsce'],['matrix','Deszcz znaków · Esc kończy']]){const row=node('div',undefined,'help-row');button(row,c,c);row.append(node('span',d));el.append(row);}line(el,'Każde narzędzie ma własną komendę:','category');const row=node('div',undefined,'links');projects.forEach(p=>button(row,p[0],p[0]));el.append(row);line(el,'Tab — podpowiedzi; ↑ / ↓ — historia. Nie uruchamiam komend systemowych.','line muted');}
  else if(cmd==='about'){line(el,'Marcin Franckiewicz','detail-title');line(el,'Twórca FORGE — kuźni pomysłów i technologii.\nBuduję narzędzia, których sam potrzebuję: do obsługi Amazon, analizy danych, automatyzacji oraz pracy z Subiektem nexo.\nPo godzinach: homelab, skrypty i Minecraft.','detail-text');link(el,'Poznaj FORGE ↗',FORGE);}
@@ -116,8 +140,6 @@ input.addEventListener('keydown',e=>{if(e.key==='ArrowUp'){e.preventDefault();if
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){stopMatrix();finishTyping();}const keys={F1:'help',F2:'about',F3:'projects',F4:'contact'};if(keys[e.key]){e.preventDefault();run(keys[e.key]);}});
 document.querySelector('#exit-matrix').addEventListener('click',stopMatrix);
 document.querySelector('#color').addEventListener('click',()=>theme(document.body.classList.contains('amber')?'green':'amber'));
-document.querySelector('#motion').addEventListener('click',()=>setFX(!document.body.classList.contains('fx-off')));
 document.querySelector('#fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.querySelector('.machine').requestFullscreen();}catch{line(entry(),'Pełny ekran jest niedostępny w tej przeglądarce.');scroll();}});
-try{theme(localStorage.getItem('crt-theme')||'green');const savedFX=localStorage.getItem('crt-fx');setFX(savedFX==='off'||(savedFX!=='on'&&reduced.matches));}catch{setFX(reduced.matches);}
-reduced.addEventListener('change',e=>{if(e.matches){stopMatrix();finishTyping();setFX(true);}});
+try{theme(localStorage.getItem('crt-theme')||'green');localStorage.removeItem('crt-fx');}catch{}
 function clock(){document.querySelector('#clock').textContent=new Date().toLocaleTimeString('pl-PL',{timeZone:'Europe/Warsaw',hour:'2-digit',minute:'2-digit'})+' / ONLINE';}clock();setInterval(clock,60000);document.querySelector('#year').textContent=new Date().getFullYear();boot();
